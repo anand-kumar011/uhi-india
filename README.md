@@ -93,4 +93,4 @@ I built this with AI coding tools (Claude, Cursor, GitHub Copilot) and treated t
 
 ## Author
 
-Anand Kumar — B.S. Data Science & AI, IIT Guwahati · [GitHub](https://github.com/anand-kumar011) · [LinkedIn](https://linkedin.com/in/anandk0040)
+Anand Kumar — Bachelor's in Data Science & Artificial Intelligence, IIT Guwahati · [GitHub](https://github.com/anand-kumar011) · [LinkedIn](https://linkedin.com/in/anandk0040)
