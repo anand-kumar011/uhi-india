@@ -1,0 +1,10 @@
+earthengine-api
+geemap
+flask
+flask-cors
+scikit-learn
+numpy
+joblib
+pandas
+shap
+pymoo

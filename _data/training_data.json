@@ -1,0 +1,472 @@
+[
+  {
+    "city": "Jaisalmer",
+    "state": "Rajasthan",
+    "climate_label": "DESERT",
+    "lst": 52.12,
+    "ndvi": 0.067,
+    "ndbi": 0.07,
+    "ndwi": -0.129,
+    "bsi": 0.298
+  },
+  {
+    "city": "Barmer",
+    "state": "Rajasthan",
+    "climate_label": "DESERT",
+    "lst": 47.91,
+    "ndvi": 0.084,
+    "ndbi": 0.069,
+    "ndwi": -0.144,
+    "bsi": 0.293
+  },
+  {
+    "city": "Bikaner",
+    "state": "Rajasthan",
+    "climate_label": "DESERT",
+    "lst": 52.97,
+    "ndvi": 0.088,
+    "ndbi": 0.061,
+    "ndwi": -0.145,
+    "bsi": 0.288
+  },
+  {
+    "city": "Phalodi",
+    "state": "Rajasthan",
+    "climate_label": "DESERT",
+    "lst": 42.71,
+    "ndvi": 0.15,
+    "ndbi": -0.005,
+    "ndwi": -0.208,
+    "bsi": 0.289
+  },
+  {
+    "city": "Churu",
+    "state": "Rajasthan",
+    "climate_label": "DESERT",
+    "lst": 52.9,
+    "ndvi": 0.097,
+    "ndbi": 0.068,
+    "ndwi": -0.166,
+    "bsi": 0.318
+  },
+  {
+    "city": "Nagaur",
+    "state": "Rajasthan",
+    "climate_label": "DESERT",
+    "lst": 57.1,
+    "ndvi": 0.105,
+    "ndbi": 0.065,
+    "ndwi": -0.181,
+    "bsi": 0.328
+  },
+  {
+    "city": "Pali",
+    "state": "Rajasthan",
+    "climate_label": "DESERT",
+    "lst": 51.71,
+    "ndvi": 0.126,
+    "ndbi": 0.059,
+    "ndwi": -0.17,
+    "bsi": 0.294
+  },
+  {
+    "city": "Sirsa",
+    "state": "Haryana",
+    "climate_label": "DESERT",
+    "lst": 40.62,
+    "ndvi": 0.107,
+    "ndbi": 0.04,
+    "ndwi": -0.16,
+    "bsi": 0.265
+  },
+  {
+    "city": "Hanumangarh",
+    "state": "Rajasthan",
+    "climate_label": "DESERT",
+    "lst": 39.59,
+    "ndvi": 0.105,
+    "ndbi": 0.04,
+    "ndwi": -0.159,
+    "bsi": 0.268
+  },
+  {
+    "city": "Kutch",
+    "state": "Gujarat",
+    "climate_label": "DESERT",
+    "lst": 43.03,
+    "ndvi": 0.094,
+    "ndbi": 0.044,
+    "ndwi": -0.122,
+    "bsi": 0.239
+  },
+  {
+    "city": "Jaipur",
+    "state": "Rajasthan",
+    "climate_label": "SEMI_ARID",
+    "lst": 37.93,
+    "ndvi": 0.139,
+    "ndbi": 0.016,
+    "ndwi": -0.168,
+    "bsi": 0.244
+  },
+  {
+    "city": "Jodhpur",
+    "state": "Rajasthan",
+    "climate_label": "SEMI_ARID",
+    "lst": 52.57,
+    "ndvi": 0.116,
+    "ndbi": 0.078,
+    "ndwi": -0.182,
+    "bsi": 0.333
+  },
+  {
+    "city": "Delhi",
+    "state": "Delhi",
+    "climate_label": "SEMI_ARID",
+    "lst": 42.4,
+    "ndvi": 0.158,
+    "ndbi": -0.035,
+    "ndwi": -0.166,
+    "bsi": 0.178
+  },
+  {
+    "city": "Ahmedabad",
+    "state": "Gujarat",
+    "climate_label": "SEMI_ARID",
+    "lst": 41.63,
+    "ndvi": 0.142,
+    "ndbi": -0.004,
+    "ndwi": -0.168,
+    "bsi": 0.225
+  },
+  {
+    "city": "Nagpur",
+    "state": "Maharashtra",
+    "climate_label": "SEMI_ARID",
+    "lst": 51.01,
+    "ndvi": 0.124,
+    "ndbi": 0.022,
+    "ndwi": -0.152,
+    "bsi": 0.228
+  },
+  {
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "climate_label": "SEMI_ARID",
+    "lst": 38.9,
+    "ndvi": 0.142,
+    "ndbi": 0.004,
+    "ndwi": -0.154,
+    "bsi": 0.218
+  },
+  {
+    "city": "Lucknow",
+    "state": "Uttar Pradesh",
+    "climate_label": "SEMI_ARID",
+    "lst": 49.65,
+    "ndvi": 0.152,
+    "ndbi": 0.017,
+    "ndwi": -0.177,
+    "bsi": 0.256
+  },
+  {
+    "city": "Bhopal",
+    "state": "Madhya Pradesh",
+    "climate_label": "SEMI_ARID",
+    "lst": 38.07,
+    "ndvi": 0.18,
+    "ndbi": -0.038,
+    "ndwi": -0.194,
+    "bsi": 0.209
+  },
+  {
+    "city": "Indore",
+    "state": "Madhya Pradesh",
+    "climate_label": "SEMI_ARID",
+    "lst": 40.9,
+    "ndvi": 0.139,
+    "ndbi": -0.019,
+    "ndwi": -0.165,
+    "bsi": 0.204
+  },
+  {
+    "city": "Kanpur",
+    "state": "Uttar Pradesh",
+    "climate_label": "SEMI_ARID",
+    "lst": 46.29,
+    "ndvi": 0.141,
+    "ndbi": 0.005,
+    "ndwi": -0.161,
+    "bsi": 0.228
+  },
+  {
+    "city": "Pune",
+    "state": "Maharashtra",
+    "climate_label": "SEMI_ARID",
+    "lst": 40.95,
+    "ndvi": 0.112,
+    "ndbi": 0.012,
+    "ndwi": -0.138,
+    "bsi": 0.195
+  },
+  {
+    "city": "Vadodara",
+    "state": "Gujarat",
+    "climate_label": "SEMI_ARID",
+    "lst": 41.97,
+    "ndvi": 0.172,
+    "ndbi": -0.014,
+    "ndwi": -0.19,
+    "bsi": 0.231
+  },
+  {
+    "city": "Surat",
+    "state": "Gujarat",
+    "climate_label": "SEMI_ARID",
+    "lst": 40.87,
+    "ndvi": 0.122,
+    "ndbi": -0.021,
+    "ndwi": -0.132,
+    "bsi": 0.16
+  },
+  {
+    "city": "Amritsar",
+    "state": "Punjab",
+    "climate_label": "SEMI_ARID",
+    "lst": 25.64,
+    "ndvi": 0.31,
+    "ndbi": -0.181,
+    "ndwi": -0.297,
+    "bsi": 0.175
+  },
+  {
+    "city": "Chandigarh",
+    "state": "Chandigarh",
+    "climate_label": "SEMI_ARID",
+    "lst": 42.74,
+    "ndvi": 0.189,
+    "ndbi": -0.03,
+    "ndwi": -0.207,
+    "bsi": 0.233
+  },
+  {
+    "city": "Guwahati",
+    "state": "Assam",
+    "climate_label": "HUMID",
+    "lst": 32.88,
+    "ndvi": 0.171,
+    "ndbi": -0.006,
+    "ndwi": -0.154,
+    "bsi": 0.204
+  },
+  {
+    "city": "Shillong",
+    "state": "Meghalaya",
+    "climate_label": "HUMID",
+    "lst": 14.28,
+    "ndvi": 0.109,
+    "ndbi": -0.046,
+    "ndwi": -0.12,
+    "bsi": 0.122
+  },
+  {
+    "city": "Kolkata",
+    "state": "West Bengal",
+    "climate_label": "HUMID",
+    "lst": 38.41,
+    "ndvi": 0.185,
+    "ndbi": -0.057,
+    "ndwi": -0.178,
+    "bsi": 0.169
+  },
+  {
+    "city": "Patna",
+    "state": "Bihar",
+    "climate_label": "HUMID",
+    "lst": 38.0,
+    "ndvi": 0.14,
+    "ndbi": -0.003,
+    "ndwi": -0.157,
+    "bsi": 0.212
+  },
+  {
+    "city": "Bhubaneswar",
+    "state": "Odisha",
+    "climate_label": "HUMID",
+    "lst": 37.22,
+    "ndvi": 0.17,
+    "ndbi": 0.014,
+    "ndwi": -0.179,
+    "bsi": 0.252
+  },
+  {
+    "city": "Imphal",
+    "state": "Manipur",
+    "climate_label": "HUMID",
+    "lst": 28.02,
+    "ndvi": 0.14,
+    "ndbi": 0.028,
+    "ndwi": -0.156,
+    "bsi": 0.238
+  },
+  {
+    "city": "Agartala",
+    "state": "Tripura",
+    "climate_label": "HUMID",
+    "lst": 30.7,
+    "ndvi": 0.291,
+    "ndbi": -0.102,
+    "ndwi": -0.261,
+    "bsi": 0.229
+  },
+  {
+    "city": "Siliguri",
+    "state": "West Bengal",
+    "climate_label": "HUMID",
+    "lst": 35.11,
+    "ndvi": 0.32,
+    "ndbi": -0.111,
+    "ndwi": -0.293,
+    "bsi": 0.252
+  },
+  {
+    "city": "Cuttack",
+    "state": "Odisha",
+    "climate_label": "HUMID",
+    "lst": 38.17,
+    "ndvi": 0.14,
+    "ndbi": 0.02,
+    "ndwi": -0.154,
+    "bsi": 0.231
+  },
+  {
+    "city": "Ranchi",
+    "state": "Jharkhand",
+    "climate_label": "HUMID",
+    "lst": 39.72,
+    "ndvi": 0.186,
+    "ndbi": 0.012,
+    "ndwi": -0.216,
+    "bsi": 0.299
+  },
+  {
+    "city": "Gaya",
+    "state": "Bihar",
+    "climate_label": "HUMID",
+    "lst": 43.08,
+    "ndvi": 0.143,
+    "ndbi": 0.037,
+    "ndwi": -0.174,
+    "bsi": 0.268
+  },
+  {
+    "city": "Aizawl",
+    "state": "Mizoram",
+    "climate_label": "HUMID",
+    "lst": 26.02,
+    "ndvi": 0.282,
+    "ndbi": -0.088,
+    "ndwi": -0.271,
+    "bsi": 0.231
+  },
+  {
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "climate_label": "COASTAL",
+    "lst": 36.31,
+    "ndvi": 0.066,
+    "ndbi": -0.017,
+    "ndwi": -0.058,
+    "bsi": 0.088
+  },
+  {
+    "city": "Chennai",
+    "state": "Tamil Nadu",
+    "climate_label": "COASTAL",
+    "lst": 33.55,
+    "ndvi": 0.076,
+    "ndbi": -0.0,
+    "ndwi": -0.049,
+    "bsi": 0.1
+  },
+  {
+    "city": "Kochi",
+    "state": "Kerala",
+    "climate_label": "COASTAL",
+    "lst": 31.18,
+    "ndvi": 0.077,
+    "ndbi": -0.03,
+    "ndwi": -0.041,
+    "bsi": 0.065
+  },
+  {
+    "city": "Visakhapatnam",
+    "state": "Andhra Pradesh",
+    "climate_label": "COASTAL",
+    "lst": 34.29,
+    "ndvi": 0.119,
+    "ndbi": -0.011,
+    "ndwi": -0.107,
+    "bsi": 0.146
+  },
+  {
+    "city": "Mangalore",
+    "state": "Karnataka",
+    "climate_label": "COASTAL",
+    "lst": 40.02,
+    "ndvi": 0.229,
+    "ndbi": -0.051,
+    "ndwi": -0.227,
+    "bsi": 0.242
+  },
+  {
+    "city": "Goa",
+    "state": "Goa",
+    "climate_label": "COASTAL",
+    "lst": 38.76,
+    "ndvi": 0.169,
+    "ndbi": -0.017,
+    "ndwi": -0.178,
+    "bsi": 0.205
+  },
+  {
+    "city": "Puducherry",
+    "state": "Puducherry",
+    "climate_label": "COASTAL",
+    "lst": 33.15,
+    "ndvi": 0.138,
+    "ndbi": -0.031,
+    "ndwi": -0.109,
+    "bsi": 0.132
+  },
+  {
+    "city": "Thiruvananthapuram",
+    "state": "Kerala",
+    "climate_label": "COASTAL",
+    "lst": 39.39,
+    "ndvi": 0.273,
+    "ndbi": -0.096,
+    "ndwi": -0.264,
+    "bsi": 0.22
+  },
+  {
+    "city": "Surat_Coast",
+    "state": "Gujarat",
+    "climate_label": "COASTAL",
+    "lst": 28.0,
+    "ndvi": -0.071,
+    "ndbi": 0.009,
+    "ndwi": 0.106,
+    "bsi": -0.036
+  },
+  {
+    "city": "Bhavnagar",
+    "state": "Gujarat",
+    "climate_label": "COASTAL",
+    "lst": 38.01,
+    "ndvi": 0.04,
+    "ndbi": -0.014,
+    "ndwi": -0.053,
+    "bsi": 0.102
+  }
+]

@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>UHI India — Urban Heat Intelligence Platform</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0f18;--s1:#111827;--s2:#1a2333;
+  --b:#1e2d42;--b2:#162030;
+  --t:#e2e8f2;--t2:#8898aa;--t3:#3d5066;
+  --hot:#ff3c3c;--warm:#ff8c00;--cool:#38bdf8;--grn:#22d37e;--purple:#a78bfa;
+  --mono:'IBM Plex Mono',monospace;--sans:'Inter',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--bg);color:var(--t);font-size:13px}
+
+.shell{display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:210px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--b);display:flex;flex-direction:column;overflow-y:auto}
+.sb-brand{padding:18px 16px 14px;border-bottom:1px solid var(--b2)}
+.sb-logo{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,#1a3a6b,#c0392b);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;color:#fff;margin-bottom:8px}
+.sb-brand-name{font-size:13px;font-weight:700;line-height:1.2}
+.sb-brand-sub{font-size:9px;color:var(--t3);letter-spacing:.6px;text-transform:uppercase;margin-top:2px}
+.sb-section{padding:12px 0 4px}
+.sb-section-label{font-family:var(--mono);font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;padding:0 14px 6px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 14px;font-size:12.5px;color:var(--t2);cursor:pointer;border-left:2px solid transparent}
+.sb-item:hover{background:var(--s2);color:var(--t)}
+.sb-item.active{background:rgba(255,60,60,.1);color:var(--hot);border-left-color:var(--hot)}
+.sb-item .ic{font-size:14px;width:18px;text-align:center}
+.sb-footer{margin-top:auto;padding:14px 16px;border-top:1px solid var(--b2)}
+.sb-tagline{font-size:11px;color:var(--t3);line-height:1.6}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{height:52px;flex-shrink:0;background:var(--s1);border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;padding:0 20px;gap:14px}
+.city-select-wrap{display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--b);border-radius:9px;padding:6px 12px}
+select{background:transparent;border:none;color:var(--t);font-size:13px;font-weight:600;cursor:pointer;min-width:140px;outline:none;font-family:var(--sans)}
+.tb-right{display:flex;align-items:center;gap:10px}
+.tb-chip{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--t2);background:var(--s2);border:1px solid var(--b);border-radius:7px;padding:5px 11px}
+.temp-pill{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--hot)}
+
+.err-banner{background:rgba(255,60,60,.1);border:1px solid rgba(255,60,60,.3);color:var(--hot);font-size:12px;padding:8px 16px;display:none;flex-shrink:0}
+
+/* PAGE CONTAINER - only ONE page visible at a time */
+.page-container{flex:1;overflow:hidden;position:relative}
+.page{position:absolute;inset:0;display:none;flex-direction:column;overflow-y:auto;padding:18px 22px}
+.page.active{display:flex}
+.page::-webkit-scrollbar{width:5px}
+.page::-webkit-scrollbar-thumb{background:var(--b);border-radius:3px}
+
+.page-title{font-size:17px;font-weight:700;margin-bottom:4px}
+.page-sub{font-size:12px;color:var(--t3);margin-bottom:18px}
+
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;color:var(--t3);text-align:center;gap:10px}
+.empty-state .ic{font-size:36px;opacity:.25}
+.empty-state p{font-size:13px;max-width:280px;line-height:1.7}
+
+.card{background:var(--s1);border:1px solid var(--b);border-radius:14px;padding:18px}
+.card-title{font-size:13px;font-weight:700;margin-bottom:14px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.stat{background:var(--s2);border:1px solid var(--b2);border-radius:10px;padding:13px 15px}
+.stat .n{font-family:var(--mono);font-size:21px;font-weight:700;line-height:1.1}
+.stat .n.hot{color:var(--hot)}.stat .n.cool{color:var(--cool)}.stat .n.grn{color:var(--grn)}.stat .n.amber{color:var(--warm)}
+.stat .l{font-size:10.5px;color:var(--t2);margin-top:4px}
+
+.stat-card{background:var(--s1);border:1px solid var(--b);border-radius:12px;padding:14px 16px}
+.sc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.sc-label{font-size:10.5px;color:var(--t2)}
+.sc-icon{font-size:17px}
+.sc-val{font-family:var(--mono);font-size:21px;font-weight:700;line-height:1.1}
+.sc-sub{font-size:10px;color:var(--t3);margin-top:4px}
+
+.map-card{background:var(--s1);border:1px solid var(--b);border-radius:14px;display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:480px}
+.map-header{padding:13px 16px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.map-body{position:relative;flex:1;min-height:0}
+#map{width:100%;height:100%}
+.thermal-btn{background:var(--hot);color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:var(--sans)}
+.thermal-btn:hover{filter:brightness(1.1)}
+.thermal-btn:disabled{opacity:.5;cursor:not-allowed}
+.scale-legend{position:absolute;bottom:16px;left:16px;z-index:500;background:rgba(10,15,24,.92);border:1px solid var(--b);border-radius:9px;padding:10px 14px}
+.scale-title{font-family:var(--mono);font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.scale-grad{width:140px;height:8px;border-radius:3px;background:linear-gradient(90deg,#38bdf8,#ffd000,#ff8c00,#ff3c3c);margin-bottom:4px}
+.scale-labels{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--t3)}
+
+.donut-wrap{display:flex;gap:16px;align-items:center;margin-bottom:18px}
+.donut-canvas-wrap{width:120px;height:120px;flex-shrink:0;position:relative}
+.donut-canvas-wrap canvas{width:100%!important;height:100%!important}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.donut-center-val{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--hot)}
+.donut-center-label{font-size:9px;color:var(--t3);text-align:center;line-height:1.3;margin-top:2px}
+.donut-legend{flex:1;display:flex;flex-direction:column;gap:8px}
+.dl-item{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--t2)}
+.dl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dl-pct{font-family:var(--mono);font-weight:600;color:var(--t);margin-left:auto}
+
+.shap-row{margin-bottom:11px}
+.shap-hd{display:flex;justify-content:space-between;font-size:11.5px;color:var(--t2);margin-bottom:5px}
+.shap-hd .pct{font-family:var(--mono);color:var(--t);font-weight:600}
+.shap-track{height:6px;background:var(--b);border-radius:3px;overflow:hidden}
+.shap-fill{height:100%;border-radius:3px}
+
+.weather-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.wcard{background:var(--s2);border:1px solid var(--b2);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px}
+.wcard .wic{font-size:20px}
+.wcard .wval{font-family:var(--mono);font-size:17px;font-weight:600}
+.wcard .wlbl{font-size:10px;color:var(--t3);margin-top:1px}
+.utci-badge{display:inline-block;font-family:var(--mono);font-size:13px;font-weight:700;padding:7px 16px;border-radius:8px;margin-bottom:16px}
+
+.sl-row{margin-bottom:16px}
+.sl-label{display:flex;justify-content:space-between;font-size:12.5px;color:var(--t2);margin-bottom:7px}
+.sl-label .v{font-family:var(--mono);color:var(--t);font-weight:700}
+input[type=range]{width:100%;height:3px;border-radius:3px;background:var(--b);accent-color:var(--hot);cursor:pointer}
+.btn{background:var(--hot);color:#fff;border:none;padding:12px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;width:100%;font-family:var(--sans)}
+.btn:hover{filter:brightness(1.1)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+input[type=number]{background:var(--s2);border:1px solid var(--b);color:var(--t);padding:9px 12px;border-radius:8px;font-size:13px;width:100%;font-family:var(--mono);margin-bottom:12px}
+
+.result-ba{display:flex;gap:10px;margin-top:16px}
+.result-ba.hidden{display:none}
+.sim-block{flex:1;background:var(--s2);border:1px solid var(--b2);border-radius:9px;padding:12px;text-align:center}
+.sim-lbl{font-size:9.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;font-family:var(--mono);margin-bottom:6px}
+.sim-val{font-family:var(--mono);font-size:20px;font-weight:700}
+.sim-val.hot{color:var(--hot)}.sim-val.grn{color:var(--grn)}.sim-val.cool{color:var(--cool)}
+.sim-cooling{background:rgba(34,211,126,.08);border:1px solid rgba(34,211,126,.2)}
+
+.scen-card{background:var(--s2);border:1px solid var(--b2);border-radius:11px;padding:15px;margin-bottom:11px}
+.scen-name{font-size:13.5px;font-weight:700;margin-bottom:3px}
+.scen-desc{font-size:11px;color:var(--t3);margin-bottom:13px}
+.ba-row{display:flex;align-items:center;gap:14px}
+.ba-blk{flex:1;text-align:center}
+.ba-t{font-family:var(--mono);font-size:21px;font-weight:700}
+.ba-l{font-size:9.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;font-family:var(--mono)}
+.bar-track{height:5px;background:var(--b);border-radius:3px;margin-top:12px;overflow:hidden}
+.bar-fill{height:100%;background:var(--grn);border-radius:3px}
+
+.alloc-card{background:var(--s2);border:1px solid var(--b2);border-radius:10px;padding:14px;text-align:center}
+.alloc-ic{font-size:22px;margin-bottom:8px}
+.alloc-name{font-size:11.5px;font-weight:700;margin-bottom:6px}
+.alloc-val{font-family:var(--mono);font-size:19px;font-weight:700}
+
+.pcard{background:var(--s2);border:1px solid var(--b2);border-radius:10px;padding:13px 15px}
+.pcard .plabel{font-size:9.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;font-family:var(--mono);margin-bottom:5px}
+.pcard .pval{font-family:var(--mono);font-size:19px;font-weight:700;color:var(--grn)}
+.pcard .psub{font-size:10px;color:var(--t3);margin-top:3px}
+.disc{font-size:11px;color:var(--t3);line-height:1.7;margin-top:14px;padding-top:14px;border-top:1px solid var(--b2)}
+.ds-card{background:var(--s2);border:1px solid var(--b2);border-radius:11px;padding:16px;text-align:center}
+.ds-ic{font-size:24px;margin-bottom:8px}
+.ds-name{font-size:12px;font-weight:700;margin-bottom:4px}
+.ds-desc{font-size:10.5px;color:var(--t3);line-height:1.5}
+
+.chart-wrap{height:200px;margin-top:8px}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{display:inline-block;width:10px;height:10px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+
+.leaflet-container{background:#060a10}
+.leaflet-popup-content-wrapper{background:#fff;border-radius:9px}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo">UHI</div>
+    <div class="sb-brand-name">Urban Heat Intelligence</div>
+    <div class="sb-brand-sub">ISRO · BAH 2026</div>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-label">Main Menu</div>
+    <div class="sb-item active" data-page="dashboard"><span class="ic">🏠</span> Dashboard</div>
+    <div class="sb-item" data-page="heatmap"><span class="ic">🗺</span> Heat Map</div>
+    <div class="sb-item" data-page="drivers"><span class="ic">📊</span> Drivers</div>
+    <div class="sb-item" data-page="heatstress"><span class="ic">🌡</span> Heat Stress</div>
+    <div class="sb-item" data-page="simulate"><span class="ic">🎛</span> Simulation</div>
+    <div class="sb-item" data-page="optimize"><span class="ic">🧬</span> Optimization</div>
+    <div class="sb-item" data-page="model"><span class="ic">🤖</span> AI Insights</div>
+    <div class="sb-item" data-page="sources"><span class="ic">🛰</span> Data &amp; Sources</div>
+  </div>
+  <div class="sb-footer"><div class="sb-tagline">🌿 Building Cooler Cities<br>for a Sustainable India</div></div>
+</div>
+
+<div class="main">
+
+  <div class="topbar">
+    <div class="city-select-wrap">
+      <span>📍</span>
+      <select id="citySelect"><option value="">Select city</option></select>
+    </div>
+    <div class="tb-right">
+      <div class="temp-pill" id="topTemp" style="display:none"></div>
+      <div class="tb-chip">● Landsat-8 + ERA5</div>
+    </div>
+  </div>
+
+  <div class="err-banner" id="errBanner"></div>
+
+  <div class="page-container">
+
+    <div class="page active" id="page-dashboard">
+      <div class="page-title">Dashboard Overview</div>
+      <div class="page-sub">Real-time urban heat intelligence summary</div>
+
+      <div id="dashEmpty" class="empty-state">
+        <div class="ic">🛰</div>
+        <p>Select a city above to load real satellite data from Landsat-8 and ERA5.</p>
+      </div>
+
+      <div id="dashContent" style="display:none">
+        <div class="g5" style="margin-bottom:16px">
+          <div class="stat-card">
+            <div class="sc-header"><span class="sc-label">Average LST</span><span class="sc-icon">🌡</span></div>
+            <div class="sc-val hot" id="dLST">--</div>
+            <div class="sc-sub">Land surface temperature</div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-header"><span class="sc-label">Heat Risk</span><span class="sc-icon">⚠️</span></div>
+            <div class="sc-val amber" id="dRisk" style="font-size:16px">--</div>
+            <div class="sc-sub" id="dRiskSub">UTCI stress level</div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-header"><span class="sc-label">Climate Type</span><span class="sc-icon">🌍</span></div>
+            <div class="sc-val" id="dClimate" style="font-size:15px;color:var(--cool)">--</div>
+            <div class="sc-sub">Köppen-style classification</div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-header"><span class="sc-label">Vegetation Index</span><span class="sc-icon">🌳</span></div>
+            <div class="sc-val grn" id="dVeg">--</div>
+            <div class="sc-sub">NDVI score</div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-header"><span class="sc-label">Model Confidence</span><span class="sc-icon">🛡</span></div>
+            <div class="sc-val grn">69.2%</div>
+            <div class="sc-sub">Climate classifier accuracy</div>
+          </div>
+        </div>
+
+        <div class="g2" style="margin-bottom:16px">
+          <div class="card">
+            <div class="card-title">Climate &amp; Strategy</div>
+            <div class="utci-badge" id="dStrategyTag" style="background:rgba(255,136,0,.1);color:var(--warm);border:1px solid rgba(255,136,0,.3)">--</div>
+            <div style="font-size:12.5px;line-height:1.7;color:var(--t2)" id="dStrategyText">--</div>
+          </div>
+          <div class="card">
+            <div class="card-title">6-Year Heat Trend</div>
+            <div class="chart-wrap"><canvas id="dashTrendChart"></canvas></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Quick Navigation</div>
+          <div class="g4">
+            <div class="pcard" style="cursor:pointer;text-align:center" onclick="goPage('heatmap')"><div style="font-size:22px;margin-bottom:6px">🗺</div><div style="font-size:12px;font-weight:600">Thermal Heat Map</div></div>
+            <div class="pcard" style="cursor:pointer;text-align:center" onclick="goPage('scenarios')"><div style="font-size:22px;margin-bottom:6px">⚖</div><div style="font-size:12px;font-weight:600">Cooling Scenarios</div></div>
+            <div class="pcard" style="cursor:pointer;text-align:center" onclick="goPage('simulate')"><div style="font-size:22px;margin-bottom:6px">🎛</div><div style="font-size:12px;font-weight:600">Run Simulation</div></div>
+            <div class="pcard" style="cursor:pointer;text-align:center" onclick="goPage('optimize')"><div style="font-size:22px;margin-bottom:6px">🧬</div><div style="font-size:12px;font-weight:600">Optimize Budget</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-heatmap">
+      <div class="page-title">Land Surface Temperature Map</div>
+      <div class="page-sub">Spatial thermal grid from Landsat-8</div>
+      <div class="map-card">
+        <div class="map-header">
+          <div style="font-size:13px;font-weight:600" id="mapCityLabel">Select a city to begin</div>
+          <button class="thermal-btn" id="thermalBtn" onclick="loadThermal()" style="display:none">Generate thermal map · ~90s</button>
+        </div>
+        <div class="map-body">
+          <div id="map"></div>
+          <div class="scale-legend" id="scaleLegend" style="display:none">
+            <div class="scale-title">LST (°C)</div>
+            <div class="scale-grad"></div>
+            <div class="scale-labels"><span id="scMin">cool</span><span id="scMax">hot</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-drivers">
+      <div class="page-title">Heat Drivers Analysis</div>
+      <div class="page-sub">Quantified contribution of surface factors</div>
+      <div id="driversEmpty" class="empty-state"><div class="ic">📊</div><p>Select a city to load driver analysis.</p></div>
+      <div id="driversContent" style="display:none">
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title">Raw Driver Values</div>
+          <div class="g4">
+            <div class="stat"><div class="n cool" id="rNdvi">--</div><div class="l">Vegetation (NDVI)</div></div>
+            <div class="stat"><div class="n cool" id="rNdbi">--</div><div class="l">Built-up (NDBI)</div></div>
+            <div class="stat"><div class="n cool" id="rNdwi">--</div><div class="l">Water (NDWI)</div></div>
+            <div class="stat"><div class="n cool" id="rBsi">--</div><div class="l">Bare Soil (BSI)</div></div>
+          </div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-title">Driver Composition</div>
+            <div class="donut-wrap">
+              <div class="donut-canvas-wrap">
+                <canvas id="donutChart"></canvas>
+                <div class="donut-center"><div class="donut-center-val" id="donutTopVal">--</div><div class="donut-center-label" id="donutTopLabel">top driver</div></div>
+              </div>
+              <div class="donut-legend" id="donutLegend"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">SHAP Explainable Importance</div>
+            <div id="shapRows"></div>
+            <div class="disc" id="shapNote">--</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-heatstress">
+      <div class="page-title">UTCI Human Heat Stress</div>
+      <div class="page-sub">Combines temperature, humidity and wind into perceived heat</div>
+      <div id="hsEmpty" class="empty-state"><div class="ic">🌡</div><p>Select a city to load heat stress data.</p></div>
+      <div id="hsContent" style="display:none" class="card">
+        <div class="card-title">Universal Thermal Climate Index</div>
+        <div class="utci-badge" id="utciBadge">--</div>
+        <div class="weather-grid">
+          <div class="wcard"><span class="wic">🌡</span><div><div class="wval" id="wAir">--</div><div class="wlbl">Air Temperature</div></div></div>
+          <div class="wcard"><span class="wic">💧</span><div><div class="wval" id="wHum">--</div><div class="wlbl">Relative Humidity</div></div></div>
+          <div class="wcard"><span class="wic">💨</span><div><div class="wval" id="wWind">--</div><div class="wlbl">Wind Speed</div></div></div>
+          <div class="wcard"><span class="wic">☀️</span><div><div class="wval">Summer</div><div class="wlbl">Season</div></div></div>
+        </div>
+        <div class="disc" id="utciNote">--</div>
+      </div>
+    </div>
+
+    <div class="page" id="page-scenarios">
+      <div class="page-title">Cooling Scenario Comparison</div>
+      <div class="page-sub">A–E intervention strategies, before vs after</div>
+      <div class="card">
+        <button class="btn" onclick="loadScenarios()" id="scenBtn" style="margin-bottom:16px">Run All 5 Scenarios</button>
+        <div id="scenEmpty" style="font-size:12px;color:var(--t3)">Select a city first, then click the button above.</div>
+        <div id="scenList"></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-simulate">
+      <div class="page-title">Custom Intervention Simulator</div>
+      <div class="page-sub">Adjust parameters to see projected cooling</div>
+      <div class="g2">
+        <div class="card">
+          <div class="card-title">Intervention Sliders</div>
+          <div class="sl-row"><div class="sl-label">🌳 Trees <span class="v" id="vTrees">500</span></div><input type="range" id="sTrees" min="0" max="5000" value="500" oninput="vTrees.innerText=this.value"></div>
+          <div class="sl-row"><div class="sl-label">💧 Water Bodies <span class="v" id="vWater">1</span></div><input type="range" id="sWater" min="0" max="10" value="1" oninput="vWater.innerText=this.value"></div>
+          <div class="sl-row"><div class="sl-label">🛣 Reflective Roads (km) <span class="v" id="vRoads">5</span></div><input type="range" id="sRoads" min="0" max="50" value="5" oninput="vRoads.innerText=this.value"></div>
+          <button class="btn" onclick="runSim()">Run Simulation</button>
+        </div>
+        <div class="card">
+          <div class="card-title">Result</div>
+          <div id="simEmpty" style="font-size:12px;color:var(--t3)">Adjust sliders and run simulation.</div>
+          <div class="result-ba hidden" id="simResult">
+            <div class="sim-block"><div class="sim-lbl">Before</div><div class="sim-val hot" id="simBefore">--</div></div>
+            <div class="sim-block"><div class="sim-lbl">After</div><div class="sim-val grn" id="simAfter">--</div></div>
+            <div class="sim-block sim-cooling"><div class="sim-lbl">Cooling</div><div class="sim-val cool" id="simCooling">--</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-optimize">
+      <div class="page-title">Genetic Algorithm Optimizer</div>
+      <div class="page-sub">Budget-constrained optimal intervention plan</div>
+      <div class="card">
+        <div class="card-title">Budget (INR)</div>
+        <input type="number" id="budget" value="5000000" step="100000">
+        <button class="btn" onclick="runOpt()" id="optBtn">Find Optimal Plan</button>
+      </div>
+      <div id="optEmpty" style="font-size:12px;color:var(--t3);margin-top:14px">Set a budget and click "Find Optimal Plan" to run the genetic algorithm.</div>
+      <div id="optResult" style="display:none;margin-top:16px">
+        <div class="g4" id="optCards" style="margin-bottom:16px"></div>
+        <div class="card"><div class="disc" id="optNote" style="margin-top:0;padding-top:0;border-top:none">--</div></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-model">
+      <div class="page-title">AI Model Performance</div>
+      <div class="page-sub">Validation metrics and methodology</div>
+      <div class="card">
+        <div class="g4" style="margin-bottom:16px">
+          <div class="pcard"><div class="plabel">Classifier Accuracy</div><div class="pval">69.2%</div><div class="psub">City climate type</div></div>
+          <div class="pcard"><div class="plabel">MAE</div><div class="pval" style="color:var(--cool)">±6.36°C</div><div class="psub">LST prediction error</div></div>
+          <div class="pcard"><div class="plabel">Samples</div><div class="pval" style="color:var(--purple)">47</div><div class="psub">Indian cities trained</div></div>
+          <div class="pcard"><div class="plabel">SHAP Method</div><div class="pval" style="font-size:13px">TreeExplainer</div><div class="psub">Explainability engine</div></div>
+        </div>
+        <div class="disc" style="margin-top:0;padding-top:0;border-top:none">
+          Validation dataset: Landsat-8 summer LST, March–June, 47 Indian cities. ECOSTRESS independent validation attempted — limited temporal/spatial overlap found for tested cities, a known constraint of that dataset. Physics-informed model uses Surface Energy Balance (Q* = H + LE + G) as a feature prior alongside Random Forest. Genetic algorithm (pymoo) used for budget-constrained optimization.
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-sources">
+      <div class="page-title">Data &amp; Sources</div>
+      <div class="page-sub">All inputs powering this system</div>
+      <div class="g3">
+        <div class="ds-card"><div class="ds-ic">🛰</div><div class="ds-name">Landsat-8/9</div><div class="ds-desc">LST, NDVI, NDBI, NDWI, BSI — 30m resolution</div></div>
+        <div class="ds-card"><div class="ds-ic">🌥</div><div class="ds-name">ERA5 Reanalysis</div><div class="ds-desc">Air temperature, humidity, wind speed</div></div>
+        <div class="ds-card"><div class="ds-ic">🌍</div><div class="ds-name">Sentinel-2</div><div class="ds-desc">High-resolution vegetation index</div></div>
+        <div class="ds-card"><div class="ds-ic">🌐</div><div class="ds-name">Google Earth Engine</div><div class="ds-desc">Satellite data processing platform</div></div>
+        <div class="ds-card"><div class="ds-ic">🧬</div><div class="ds-name">Physics-Informed AI</div><div class="ds-desc">Surface Energy Balance + Random Forest + SHAP</div></div>
+        <div class="ds-card"><div class="ds-ic">🧮</div><div class="ds-name">pymoo GA</div><div class="ds-desc">Genetic algorithm budget optimizer</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+const API='http://localhost:5000'
+let map=null,donutChart=null,dashTrendChart=null
+let thermalLayers=[],optMarkers=[],cityMarker=null
+let lastHeat=null,currentCity=null
+let mapInitialized=false
+
+function showErr(msg){const b=document.getElementById('errBanner');b.innerText=msg;b.style.display='block';setTimeout(()=>b.style.display='none',6000)}
+
+function goPage(id){
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'))
+  document.querySelector(`[data-page="${id}"]`)?.classList.add('active')
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'))
+  document.getElementById('page-'+id).classList.add('active')
+  if(id==='heatmap'){
+    if(!mapInitialized)initMap()
+    setTimeout(()=>map&&map.invalidateSize(),60)
+  }
+}
+document.querySelectorAll('.sb-item').forEach(item=>{
+  item.addEventListener('click',()=>goPage(item.dataset.page))
+})
+
+function initMap(){
+  mapInitialized=true
+  map=L.map('map',{zoomControl:true}).setView([20.5937,78.9629],5)
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:''}).addTo(map)
+  if(lastHeat){
+    cityMarker=L.circleMarker([lastHeat.lat,lastHeat.lon],{radius:7,fillColor:'#fff',color:'#fff',fillOpacity:.9,weight:2}).addTo(map)
+    map.setView([lastHeat.lat,lastHeat.lon],11)
+  }
+}
+
+async function loadCities(){
+  try{
+    const r=await fetch(`${API}/cities`)
+    const d=await r.json()
+    const sel=document.getElementById('citySelect')
+    d.cities.forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;sel.appendChild(o)})
+  }catch(e){showErr('Backend not reachable — start python3 app.py first')}
+}
+
+document.getElementById('citySelect').addEventListener('change',async function(){
+  const city=this.value;if(!city)return
+  currentCity=city
+
+  document.getElementById('dashEmpty').style.display='none'
+  document.getElementById('dashContent').style.display='block'
+  document.getElementById('driversEmpty').style.display='none'
+  document.getElementById('driversContent').style.display='block'
+  document.getElementById('hsEmpty').style.display='none'
+  document.getElementById('hsContent').style.display='block'
+  document.getElementById('thermalBtn').style.display='block'
+  document.getElementById('thermalBtn').innerText='Generate thermal map · ~90s'
+  document.getElementById('thermalBtn').disabled=false
+  document.getElementById('mapCityLabel').innerText=city+' · Landsat-8 Summer LST'
+  document.getElementById('simResult').classList.add('hidden')
+  document.getElementById('simEmpty').style.display='block'
+  document.getElementById('optResult').style.display='none'
+  document.getElementById('optEmpty').style.display='block'
+  document.getElementById('scenList').innerHTML=''
+  document.getElementById('scenEmpty').style.display='block'
+  clearThermal()
+  if(map&&cityMarker)map.removeLayer(cityMarker)
+  if(map){optMarkers.forEach(m=>map.removeLayer(m))}
+  optMarkers=[]
+
+  try{
+    const[hR,cR,dR,tR,hsR]=await Promise.all([
+      fetch(`${API}/heat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({city})}),
+      fetch(`${API}/classify`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({city})}),
+      fetch(`${API}/drivers`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({city})}),
+      fetch(`${API}/trend`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({city})}),
+      fetch(`${API}/heat-stress`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({city})})
+    ])
+    const h=await hR.json(),c=await cR.json(),d=await dR.json(),t=await tR.json(),hs=await hsR.json()
+    if(h.error){showErr(h.error);return}
+    lastHeat=h
+
+    document.getElementById('topTemp').style.display='block'
+    document.getElementById('topTemp').innerText=h.temperature+'°C'
+
+    document.getElementById('dLST').innerText=h.temperature+'°C'
+    document.getElementById('dClimate').innerText=c.city_type
+    document.getElementById('dVeg').innerText=h.vegetation
+    document.getElementById('dStrategyTag').innerText=c.city_type
+    document.getElementById('dStrategyText').innerText=c.strategy+' — '+c.reason
+
+    if(!hs.error){
+      document.getElementById('dRisk').innerText=hs.stress_level
+      document.getElementById('dRiskSub').innerText='UTCI '+hs.utci+'°C'
+      const b=document.getElementById('utciBadge')
+      b.innerText=`UTCI ${hs.utci}°C · ${hs.stress_level}`
+      b.style.background=hs.stress_color+'22'
+      b.style.color=hs.stress_color
+      b.style.border='1px solid '+hs.stress_color+'55'
+      document.getElementById('wAir').innerText=hs.air_temp+'°C'
+      document.getElementById('wHum').innerText=hs.relative_humidity+'%'
+      document.getElementById('wWind').innerText=hs.wind_speed+' m/s'
+      document.getElementById('utciNote').innerText='Source: '+hs.data_source+'. Simplified UTCI approximation following Bröde et al. physics — not calibrated to exact published polynomial.'
+    }
+
+    document.getElementById('rNdvi').innerText=d.vegetation_ndvi
+    document.getElementById('rNdbi').innerText=d.builtup_ndbi
+    document.getElementById('rNdwi').innerText=d.water_ndwi
+    document.getElementById('rBsi').innerText=d.baresoil_bsi
+    renderDonut(d)
+    loadShap(city)
+
+    if(!t.error){renderTrend('dashTrendChart',t.trend)}
+
+    if(map){
+      cityMarker=L.circleMarker([h.lat,h.lon],{radius:7,fillColor:'#fff',color:'#fff',fillOpacity:.9,weight:2}).addTo(map)
+      cityMarker.bindPopup(`<b style="color:#0a0f18">${city} · ${h.temperature}°C</b>`)
+      map.setView([h.lat,h.lon],11)
+    }
+  }catch(e){showErr('Error: '+e.message)}
+})
+
+function renderDonut(d){
+  const vals=[
+    {label:'Built-up Density',val:Math.abs(d.builtup_ndbi*100)+5,color:'#ff3c3c'},
+    {label:'Low Vegetation',val:Math.abs((1-d.vegetation_ndvi)*30),color:'#ff8c00'},
+    {label:'Water Scarcity',val:Math.max(1,Math.abs(d.water_ndwi*-50+10)),color:'#38bdf8'},
+    {label:'Bare Soil',val:Math.abs(d.baresoil_bsi*20)+2,color:'#22d37e'},
+  ]
+  const total=vals.reduce((s,v)=>s+v.val,0)
+  vals.forEach(v=>v.pct=Math.round(v.val/total*100))
+  vals.sort((a,b)=>b.pct-a.pct)
+
+  if(donutChart)donutChart.destroy()
+  donutChart=new Chart(document.getElementById('donutChart'),{
+    type:'doughnut',
+    data:{labels:vals.map(v=>v.label),datasets:[{data:vals.map(v=>v.pct),backgroundColor:vals.map(v=>v.color),borderWidth:0,hoverOffset:4}]},
+    options:{cutout:'68%',plugins:{legend:{display:false}},responsive:true,maintainAspectRatio:false}
+  })
+  document.getElementById('donutTopVal').innerText=vals[0].pct+'%'
+  document.getElementById('donutTopLabel').innerText=vals[0].label
+
+  let legend=''
+  vals.forEach(v=>legend+=`<div class="dl-item"><div class="dl-dot" style="background:${v.color}"></div>${v.label}<span class="dl-pct">${v.pct}%</span></div>`)
+  document.getElementById('donutLegend').innerHTML=legend
+}
+
+async function loadShap(city){
+  document.getElementById('shapRows').innerHTML='<div style="font-size:11px;color:var(--t3)">Computing SHAP values…</div>'
+  try{
+    const r=await fetch(`${API}/driver-importance`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({city})})
+    const d=await r.json()
+    if(d.error){document.getElementById('shapRows').innerText=d.error;return}
+    const cols=['#ff3c3c','#ff8c00','#38bdf8','#22d37e']
+    let html='',i=0
+    for(const[name,pct]of Object.entries(d.global_pattern)){
+      html+=`<div class="shap-row"><div class="shap-hd"><span>${name}</span><span class="pct">${pct}%</span></div><div class="shap-track"><div class="shap-fill" style="width:${pct}%;background:${cols[i%4]}"></div></div></div>`
+      i++
+    }
+    document.getElementById('shapRows').innerHTML=html
+    document.getElementById('shapNote').innerText='Method: '+d.method
+  }catch(e){document.getElementById('shapRows').innerText='Could not load SHAP.'}
+}
+
+function renderTrend(canvasId,data){
+  if(!data||!data.length)return
+  if(dashTrendChart)dashTrendChart.destroy()
+  const labels=data.map(d=>d.year),temps=data.map(d=>d.avg_temp)
+  dashTrendChart=new Chart(document.getElementById(canvasId),{
+    type:'line',
+    data:{labels,datasets:[{data:temps,borderColor:'#ff3c3c',backgroundColor:'rgba(255,60,60,0.08)',tension:.4,fill:true,pointRadius:3,pointBackgroundColor:'#ff3c3c',borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:'#3d5066',font:{family:'IBM Plex Mono',size:9}},grid:{color:'#1e2d42'}},
+               y:{ticks:{color:'#3d5066',font:{family:'IBM Plex Mono',size:9}},grid:{color:'#1e2d42'}}}}
+  })
+}
+
+function tempToColor(t,mn,mx){
+  const r=mx>mn?(t-mn)/(mx-mn):0.5
+  if(r>.85)return '#ff0000'
+  if(r>.7)return '#ff4400'
+  if(r>.55)return '#ff8800'
+  if(r>.4)return '#ffcc00'
+  if(r>.25)return '#aadd00'
+  return '#38bdf8'
+}
+function clearThermal(){thermalLayers.forEach(l=>map&&map.removeLayer(l));thermalLayers=[];document.getElementById('scaleLegend').style.display='none'}
+
+async function loadThermal(){
+  if(!currentCity)return
+  const btn=document.getElementById('thermalBtn')
+  btn.innerText='Calculating… (~90s)';btn.disabled=true
+  clearThermal()
+  try{
+    const r=await fetch(`${API}/hotspots`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({city:currentCity})})
+    const d=await r.json()
+    if(d.error){showErr(d.error);btn.innerText='Generate thermal map · ~90s';btn.disabled=false;return}
+    const temps=d.grid.map(c=>c.temp)
+    const mn=Math.min(...temps),mx=Math.max(...temps)
+    const step=0.028
+    d.grid.forEach(cell=>{
+      const col=tempToColor(cell.temp,mn,mx)
+      const bounds=[[cell.lat-step/2,cell.lon-step/2],[cell.lat+step/2,cell.lon+step/2]]
+      const rect=L.rectangle(bounds,{color:'transparent',fillColor:col,fillOpacity:.65,weight:0}).addTo(map)
+      rect.on('click',()=>{rect.bindPopup(`<b style="color:#0a0f18">${cell.temp}°C</b>`).openPopup()})
+      thermalLayers.push(rect)
+    })
+    document.getElementById('scaleLegend').style.display='block'
+    document.getElementById('scMin').innerText=mn.toFixed(1)+'°C'
+    document.getElementById('scMax').innerText=mx.toFixed(1)+'°C'
+    btn.innerText='Refresh thermal map';btn.disabled=false
+  }catch(e){showErr('Thermal error: '+e.message);btn.innerText='Generate thermal map · ~90s';btn.disabled=false}
+}
+
+async function loadScenarios(){
+  if(!currentCity){showErr('Select a city first');return}
+  const btn=document.getElementById('scenBtn')
+  btn.innerText='Running…';btn.disabled=true
+  document.getElementById('scenEmpty').style.display='none'
+  try{
+    const r=await fetch(`${API}/scenarios`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({city:currentCity})})
+    const d=await r.json()
+    if(d.error){showErr(d.error);btn.innerText='Run All 5 Scenarios';btn.disabled=false;return}
+    const mx=Math.max(...d.scenarios.map(s=>s.cooling_effect),.1)
+    let html=''
+    d.scenarios.forEach(s=>{
+      const pct=(s.cooling_effect/mx)*100
+      html+=`<div class="scen-card">
+        <div class="scen-name">${s.scenario} — ${s.name}</div>
+        <div class="scen-desc">${s.description}</div>
+        <div class="ba-row">
+          <div class="ba-blk"><div class="ba-t hot">${s.baseline_lst}°C</div><div class="ba-l">Before</div></div>
+          <div style="color:var(--t3);font-size:16px">→</div>
+          <div class="ba-blk"><div class="ba-t grn">${s.scenario_lst}°C</div><div class="ba-l">After</div></div>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+      </div>`
+    })
+    document.getElementById('scenList').innerHTML=html
+    btn.innerText='Re-run Scenarios';btn.disabled=false
+  }catch(e){showErr('Scenarios error');btn.innerText='Run All 5 Scenarios';btn.disabled=false}
+}
+
+async function runSim(){
+  if(!currentCity){showErr('Select a city first');return}
+  try{
+    const r=await fetch(`${API}/simulate`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({city:currentCity,interventions:{trees:+document.getElementById('sTrees').value,water_bodies:+document.getElementById('sWater').value,reflective_roads_km:+document.getElementById('sRoads').value}})})
+    const d=await r.json()
+    if(d.error){showErr(d.error);return}
+    document.getElementById('simBefore').innerText=d.current_temp+'°C'
+    document.getElementById('simAfter').innerText=d.future_temp+'°C'
+    document.getElementById('simCooling').innerText='-'+d.temp_reduction+'°C'
+    document.getElementById('simEmpty').style.display='none'
+    document.getElementById('simResult').classList.remove('hidden')
+  }catch(e){showErr('Simulation error')}
+}
+
+async function runOpt(){
+  if(!currentCity){showErr('Select a city first');return}
+  const btn=document.getElementById('optBtn')
+  btn.innerHTML='<span class="spin"></span> Running GA…';btn.disabled=true
+  try{
+    const r=await fetch(`${API}/optimize-map`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({city:currentCity,budget_inr:+document.getElementById('budget').value})})
+    const d=await r.json()
+    if(d.error){showErr(d.error);btn.innerText='Find Optimal Plan';btn.disabled=false;return}
+    const icons={'trees':'🌳','cool_roofs_sqm':'🏠','green_roofs_sqm':'🌿','water_bodies':'💧'}
+    const cols={'trees':'#22d37e','cool_roofs_sqm':'#38bdf8','green_roofs_sqm':'#a78bfa','water_bodies':'#60a5fa'}
+    let html=''
+    Object.entries(d.total_allocation).forEach(([k,v])=>{
+      html+=`<div class="alloc-card"><div class="alloc-ic">${icons[k]||'📦'}</div><div class="alloc-name">${k.replace(/_/g,' ')}</div><div class="alloc-val" style="color:${cols[k]||'var(--cool)'}">${v.toLocaleString()}</div></div>`
+    })
+    html+=`<div class="alloc-card" style="background:rgba(34,211,126,.08);border-color:rgba(34,211,126,.25)"><div class="alloc-ic">❄️</div><div class="alloc-name">Cooling</div><div class="alloc-val" style="color:var(--grn)">${d.expected_cooling}°C</div></div>`
+    document.getElementById('optCards').innerHTML=html
+    document.getElementById('optNote').innerText=`Budget used: ₹${Math.round(d.budget_used).toLocaleString()} of ₹${(+document.getElementById('budget').value).toLocaleString()}. ${d.method_note}`
+    document.getElementById('optResult').style.display='block'
+    document.getElementById('optEmpty').style.display='none'
+
+    if(map){
+      optMarkers.forEach(m=>map.removeLayer(m));optMarkers=[]
+      d.placements.forEach(p=>{
+        if(p.trees>0){const m=L.circleMarker([p.lat,p.lon],{radius:9,fillColor:'#22d37e',color:'#22d37e',fillOpacity:.7,weight:1.5}).addTo(map);m.bindTooltip(p.trees+' trees');optMarkers.push(m)}
+        if(p.water_bodies>0){const m=L.circleMarker([p.lat,p.lon],{radius:13,fillColor:'#38bdf8',color:'#38bdf8',fillOpacity:.55,weight:1.5}).addTo(map);m.bindTooltip('Water body');optMarkers.push(m)}
+        if(p.cool_roofs_sqm>0){const m=L.circleMarker([p.lat,p.lon],{radius:7,fillColor:'#e2e8f2',color:'#e2e8f2',fillOpacity:.5,weight:1}).addTo(map);m.bindTooltip(p.cool_roofs_sqm+' sqm roofs');optMarkers.push(m)}
+      })
+    }
+    btn.innerText='Re-run Optimizer';btn.disabled=false
+  }catch(e){showErr('Optimizer error: '+e.message);btn.innerHTML='Find Optimal Plan';btn.disabled=false}
+}
+
+loadCities()
+</script>
+</body>
+</html>
