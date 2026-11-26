@@ -420,7 +420,7 @@ input[type=number]{background:var(--s2);border:1px solid var(--b);color:var(--t)
 </div>
 
 <script>
-const API='http://localhost:5000'
+const API=window.UHI_API||'http://localhost:5000'
 let map=null,donutChart=null,dashTrendChart=null
 let thermalLayers=[],optMarkers=[],cityMarker=null
 let lastHeat=null,currentCity=null
