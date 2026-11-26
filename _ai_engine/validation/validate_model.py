@@ -9,7 +9,17 @@ import numpy as np
 from datetime import datetime
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
-ee.Initialize(project='impactful-water-467805-e3')
+import os
+
+EE_PROJECT = os.environ.get("EE_PROJECT")
+if not EE_PROJECT:
+    raise RuntimeError(
+        "EE_PROJECT is not set. Set it to your own Google Cloud project id that has "
+        "the Earth Engine API enabled, e.g. export EE_PROJECT=my-gcp-project. "
+        "See the 'Run it locally' section in README.md."
+    )
+
+ee.Initialize(project=EE_PROJECT)
 
 
 def get_ecostress_lst(longitude, latitude, year=None):
