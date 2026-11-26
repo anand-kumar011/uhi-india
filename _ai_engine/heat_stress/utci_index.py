@@ -6,7 +6,17 @@
 import ee
 from datetime import datetime
 
-ee.Initialize(project='impactful-water-467805-e3')
+import os
+
+EE_PROJECT = os.environ.get("EE_PROJECT")
+if not EE_PROJECT:
+    raise RuntimeError(
+        "EE_PROJECT is not set. Set it to your own Google Cloud project id that has "
+        "the Earth Engine API enabled, e.g. export EE_PROJECT=my-gcp-project. "
+        "See the 'Run it locally' section in README.md."
+    )
+
+ee.Initialize(project=EE_PROJECT)
 
 
 def estimate_humidity_wind(longitude, latitude, year=None):
